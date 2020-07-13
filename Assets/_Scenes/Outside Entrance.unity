@@ -1046,6 +1046,7 @@ MonoBehaviour:
   slopeCheckDistance: 20.78
   maxSlopeAngle: 45
   groundDistance: 1.5
+  airbornGroundDistance: 1.1
   playerGroundOffset: 1
 --- !u!43 &651347586
 Mesh:

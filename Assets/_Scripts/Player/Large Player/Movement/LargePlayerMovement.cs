@@ -15,7 +15,9 @@ public class LargePlayerMovement : MonoBehaviour
 
     [Header("Gravity")]
     public float groundDistance;
+    public float airbornGroundDistance;
     public float playerGroundOffset;
+    public float gravity;
 
     [Header("Component Reference")]
     private Rigidbody rb;
@@ -25,7 +27,8 @@ public class LargePlayerMovement : MonoBehaviour
 
 
     // Sets the reference to the player's rigidbody
-    void Start() { 
+    void Start()
+    {
         rb = GetComponent<Rigidbody>();
         gravState = GravityState.GROUND;
     }
@@ -33,9 +36,10 @@ public class LargePlayerMovement : MonoBehaviour
     void FixedUpdate()
     {
         Movement();
-        AddFriction();
+        if (gravState == GravityState.GROUND) GroundUpdate();
+        else if (gravState == GravityState.AIRBORN) AirbornUpdate();
+
         ClampMovement();
-        SnapToGround();
     }
 
     // Gets the user input and applies it to the player
@@ -97,12 +101,56 @@ public class LargePlayerMovement : MonoBehaviour
     private void SnapToGround()
     {
         RaycastHit hit;
-        if (!Physics.Raycast(transform.position, Vector3.down, out hit, groundDistance, 1 << LayerMask.NameToLayer("Ground"))) {
-            gravState = GravityState.AIRBORN;
+        if (!Physics.Raycast(transform.position, Vector3.down, out hit, groundDistance, 1 << LayerMask.NameToLayer("Ground")))
+        {
+            SetGravityState(GravityState.AIRBORN);
             return;
         }
-        gravState = GravityState.GROUND;
-        transform.position = new Vector3(transform.position.x, hit.point.y + playerGroundOffset, transform.position.z) ;
+        transform.position = new Vector3(transform.position.x, hit.point.y + playerGroundOffset, transform.position.z);
 
+    }
+
+    private void GroundUpdate()
+    {
+        AddFriction();
+        SnapToGround();
+    }
+
+    private void AirbornUpdate()
+    {
+        CheckLanded();
+        ApplyGravity();
+    }
+
+    private void CheckLanded()
+    {
+        RaycastHit hit;
+        if (!Physics.Raycast(transform.position, Vector3.down, out hit, airbornGroundDistance, 1 << LayerMask.NameToLayer("Ground"))) return;
+        if (Mathf.Abs(rb.velocity.y) >= 0.1f) return;
+        SetGravityState(GravityState.GROUND);
+    }
+
+    private void ApplyGravity() {
+        rb.AddForce(Vector3.down * gravity);
+    }
+
+    private void SetGravityState(GravityState state) {
+        gravState = state;
+        switch (gravState) {
+            case GravityState.AIRBORN:
+                SetAirbornPhysics();
+                break;
+            case GravityState.GROUND:
+                SetGroundPhysics();
+                break;
+        }
+    }
+
+    private void SetAirbornPhysics() {
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
+    }
+
+    private void SetGroundPhysics() {
+        rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionY;
     }
 }
