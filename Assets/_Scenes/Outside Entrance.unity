@@ -1045,9 +1045,10 @@ MonoBehaviour:
   incrementFriction: 0.2
   slopeCheckDistance: 20.78
   maxSlopeAngle: 45
-  groundDistance: 1.5
+  groundDistance: 1.05
   airbornGroundDistance: 1.1
   playerGroundOffset: 1
+  gravity: 20
 --- !u!43 &651347586
 Mesh:
   m_ObjectHideFlags: 0
@@ -3301,6 +3302,11 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3213020444690103530, guid: 3f24255f14cb85b4586b5b6fedde853b,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 3213020444690103533, guid: 3f24255f14cb85b4586b5b6fedde853b,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -3464,6 +3470,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Railing Extension Right
       objectReference: {fileID: 0}
+    - target: {fileID: 4329578909039258721, guid: ae0d1a7b0e7c01e40943924ee2e16d10,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 4329578909039258724, guid: ae0d1a7b0e7c01e40943924ee2e16d10,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -3602,6 +3613,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4511410164282980930, guid: 5f2d47089e23753499805fca965be4bf,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4511410164282980932, guid: 5f2d47089e23753499805fca965be4bf,
         type: 3}
@@ -3909,6 +3925,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6156544445078580263, guid: 751aa2f2deca850468d1c45238225af7,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 6156544445078580442, guid: 751aa2f2deca850468d1c45238225af7,
         type: 3}

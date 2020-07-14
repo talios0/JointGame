@@ -25,6 +25,9 @@ public class LargePlayerMovement : MonoBehaviour
     [Header("States")]
     private GravityState gravState;
 
+    // Other
+    private bool frictionLock;
+
 
     // Sets the reference to the player's rigidbody
     void Start()
@@ -46,11 +49,8 @@ public class LargePlayerMovement : MonoBehaviour
     private void Movement()
     {
         Vector3 input = Input.GetAxisRaw("Vertical") * transform.forward + Input.GetAxisRaw("Horizontal") * transform.right;
-        if (input == Vector3.zero)
-        {
-            Slope();
-            return;
-        }
+        if (input == Vector3.zero) return;
+        frictionLock = false;
 
         input *= incrementSpeed;
         input.y = 0; // Stops the player from accidentally moving vertically
@@ -63,10 +63,10 @@ public class LargePlayerMovement : MonoBehaviour
     {
         Vector3 frictionDamp = -rb.velocity * incrementFriction;
         frictionDamp.y = 0;
-
         if (Mathf.Abs(frictionDamp.x) < 0.05f && Mathf.Abs(frictionDamp.z) < 0.05f)
         {
-            if (new Vector3(rb.velocity.x, 0, rb.velocity.z) != Vector3.zero) rb.velocity = new Vector3(0, rb.velocity.y, 0);
+            if (new Vector3(rb.velocity.x, 0, rb.velocity.z) != Vector3.zero) rb.velocity = new Vector3(0, 0, 0);
+            frictionLock = true;
             return;
         }
         if (frictionDamp.magnitude >= maxSpeed) frictionDamp = -rb.velocity;
@@ -88,14 +88,16 @@ public class LargePlayerMovement : MonoBehaviour
     }
 
     // Prevents gravity from pulling the player down slopes if the angle is slight
-    private void Slope()
+    private bool isSlope()
     {
         RaycastHit hit;
 
-        if (!Physics.Raycast(transform.position, Vector3.down, out hit, slopeCheckDistance)) return;
+        if (!Physics.Raycast(transform.position, Vector3.down, out hit, slopeCheckDistance)) return false;
         float angle = hit.transform.rotation.eulerAngles.y;
+        
 
-        //if (angle <= maxSlopeAngle) rb.velocity = new Vector3(0, rb.velocity.y, 0);
+        if (angle > maxSlopeAngle) return false;
+        return true;
     }
 
     private void SnapToGround()
@@ -106,6 +108,7 @@ public class LargePlayerMovement : MonoBehaviour
             SetGravityState(GravityState.AIRBORN);
             return;
         }
+        if (frictionLock) return;
         transform.position = new Vector3(transform.position.x, hit.point.y + playerGroundOffset, transform.position.z);
 
     }
@@ -150,7 +153,8 @@ public class LargePlayerMovement : MonoBehaviour
         rb.constraints = RigidbodyConstraints.FreezeRotation;
     }
 
-    private void SetGroundPhysics() {
+    private void SetGroundPhysics()
+    {
         rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionY;
     }
 }
