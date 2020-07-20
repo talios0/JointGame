@@ -20,6 +20,7 @@ public class LargePlayerMovement : MonoBehaviour
     public float gravity;
 
     [Header("Component Reference")]
+    public Collider col;
     private Rigidbody rb;
 
     [Header("States")]
@@ -27,6 +28,8 @@ public class LargePlayerMovement : MonoBehaviour
 
     // Other
     private bool frictionLock;
+    private RaycastHit floor;
+    private bool isFloor;
 
 
     // Sets the reference to the player's rigidbody
@@ -38,6 +41,9 @@ public class LargePlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
+        floor = GetFloor();
+        isFloor = IsFloor();
+
         Movement();
         if (gravState == GravityState.GROUND) GroundUpdate();
         else if (gravState == GravityState.AIRBORN) AirbornUpdate();
@@ -90,10 +96,8 @@ public class LargePlayerMovement : MonoBehaviour
     // Prevents gravity from pulling the player down slopes if the angle is slight
     private bool isSlope()
     {
-        RaycastHit hit;
-
-        if (!Physics.Raycast(transform.position, Vector3.down, out hit, slopeCheckDistance)) return false;
-        float angle = hit.transform.rotation.eulerAngles.y;
+        if (!isFloor) return false;
+        float angle = floor.transform.rotation.eulerAngles.y;
         
 
         if (angle > maxSlopeAngle) return false;
@@ -102,14 +106,13 @@ public class LargePlayerMovement : MonoBehaviour
 
     private void SnapToGround()
     {
-        RaycastHit hit;
-        if (!Physics.Raycast(transform.position, Vector3.down, out hit, groundDistance, 1 << LayerMask.NameToLayer("Ground")))
+        if (!isFloor || (isFloor && floor.transform.gameObject.layer != LayerMask.NameToLayer("Ground")))
         {
             SetGravityState(GravityState.AIRBORN);
             return;
         }
         if (frictionLock) return;
-        transform.position = new Vector3(transform.position.x, hit.point.y + playerGroundOffset, transform.position.z);
+        transform.position = new Vector3(transform.position.x, floor.point.y + playerGroundOffset, transform.position.z);
 
     }
 
@@ -123,6 +126,7 @@ public class LargePlayerMovement : MonoBehaviour
     {
         CheckLanded();
         ApplyGravity();
+        if (isFloor) AddFriction();
     }
 
     private void CheckLanded()
@@ -156,5 +160,15 @@ public class LargePlayerMovement : MonoBehaviour
     private void SetGroundPhysics()
     {
         rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionY;
+    }
+
+    private RaycastHit GetFloor() {
+        RaycastHit hit;
+        Physics.Raycast(transform.position, Vector3.down, out hit, airbornGroundDistance);
+        return hit;
+    }
+
+    private bool IsFloor() { 
+        return Physics.Raycast(transform.position, Vector3.down, airbornGroundDistance);
     }
 }

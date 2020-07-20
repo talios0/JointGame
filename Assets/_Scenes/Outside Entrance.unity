@@ -1050,6 +1050,7 @@ MonoBehaviour:
   airbornGroundDistance: 1.1
   playerGroundOffset: 1
   gravity: 20
+  col: {fileID: 1984360751}
 --- !u!43 &651347586
 Mesh:
   m_ObjectHideFlags: 0
