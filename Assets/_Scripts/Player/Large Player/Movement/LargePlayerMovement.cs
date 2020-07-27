@@ -18,6 +18,7 @@ public class LargePlayerMovement : MonoBehaviour
     public float airbornGroundDistance;
     public float playerGroundOffset;
     public float gravity;
+    public float groundRadius;
 
     [Header("Component Reference")]
     public Collider col;
@@ -28,8 +29,11 @@ public class LargePlayerMovement : MonoBehaviour
 
     // Other
     private bool frictionLock;
-    private RaycastHit floor;
+    private Collider[] floor;
     private bool isFloor;
+
+    private Vector3 input;
+    private Vector3 pos;
 
 
     // Sets the reference to the player's rigidbody
@@ -41,10 +45,11 @@ public class LargePlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        floor = GetFloor();
-        isFloor = IsFloor();
-
         Movement();
+
+        floor = GetFloor();
+        isFloor = floor.Length > 0 ? true : false;
+
         if (gravState == GravityState.GROUND) GroundUpdate();
         else if (gravState == GravityState.AIRBORN) AirbornUpdate();
 
@@ -54,7 +59,7 @@ public class LargePlayerMovement : MonoBehaviour
     // Gets the user input and applies it to the player
     private void Movement()
     {
-        Vector3 input = Input.GetAxisRaw("Vertical") * transform.forward + Input.GetAxisRaw("Horizontal") * transform.right;
+        input = Input.GetAxisRaw("Vertical") * transform.forward + Input.GetAxisRaw("Horizontal") * transform.right;
         if (input == Vector3.zero) return;
         frictionLock = false;
 
@@ -97,8 +102,8 @@ public class LargePlayerMovement : MonoBehaviour
     private bool isSlope()
     {
         if (!isFloor) return false;
-        float angle = floor.transform.rotation.eulerAngles.y;
-        
+        float angle = floor[0].transform.rotation.eulerAngles.y;
+
 
         if (angle > maxSlopeAngle) return false;
         return true;
@@ -106,14 +111,14 @@ public class LargePlayerMovement : MonoBehaviour
 
     private void SnapToGround()
     {
-        if (!isFloor || (isFloor && floor.transform.gameObject.layer != LayerMask.NameToLayer("Ground")))
+        if (!isFloor)
         {
             SetGravityState(GravityState.AIRBORN);
             return;
         }
         if (frictionLock) return;
-        transform.position = new Vector3(transform.position.x, floor.point.y + playerGroundOffset, transform.position.z);
-
+        pos = new Vector3(transform.position.x, GetFloor()[0].ClosestPoint(transform.position).y + playerGroundOffset, transform.position.z);
+        transform.position = pos;
     }
 
     private void GroundUpdate()
@@ -126,24 +131,26 @@ public class LargePlayerMovement : MonoBehaviour
     {
         CheckLanded();
         ApplyGravity();
-        if (isFloor) AddFriction();
+        AddFriction();
     }
 
     private void CheckLanded()
     {
-        RaycastHit hit;
-        if (!Physics.Raycast(transform.position, Vector3.down, out hit, airbornGroundDistance, 1 << LayerMask.NameToLayer("Ground"))) return;
+        if (!isFloor) return;
         if (Mathf.Abs(rb.velocity.y) >= 0.1f) return;
         SetGravityState(GravityState.GROUND);
     }
 
-    private void ApplyGravity() {
+    private void ApplyGravity()
+    {
         rb.AddForce(Vector3.down * gravity);
     }
 
-    private void SetGravityState(GravityState state) {
+    private void SetGravityState(GravityState state)
+    {
         gravState = state;
-        switch (gravState) {
+        switch (gravState)
+        {
             case GravityState.AIRBORN:
                 SetAirbornPhysics();
                 break;
@@ -153,22 +160,18 @@ public class LargePlayerMovement : MonoBehaviour
         }
     }
 
-    private void SetAirbornPhysics() {
+    private void SetAirbornPhysics()
+    {
         rb.constraints = RigidbodyConstraints.FreezeRotation;
     }
 
-    private void SetGroundPhysics()
-    {
+    private void SetGroundPhysics() {
         rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionY;
     }
 
-    private RaycastHit GetFloor() {
-        RaycastHit hit;
-        Physics.Raycast(transform.position, Vector3.down, out hit, airbornGroundDistance);
-        return hit;
+    private Collider[] GetFloor()
+    {
+        return Physics.OverlapSphere(transform.position + playerGroundOffset * Vector3.down, groundRadius, 1 << LayerMask.NameToLayer("Ground"));
     }
 
-    private bool IsFloor() { 
-        return Physics.Raycast(transform.position, Vector3.down, airbornGroundDistance);
-    }
 }
