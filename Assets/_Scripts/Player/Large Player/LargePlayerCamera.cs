@@ -28,19 +28,15 @@ public class LargePlayerCamera : MonoBehaviour
     private void FixedUpdate()
     {
         Look(input);
+        ClampRotation();
     }
 
-    private Vector2 GetInput() {
+    private Vector2 GetInput()
+    {
         Vector2 input = new Vector2(Input.GetAxis("Mouse X"), -Input.GetAxis("Mouse Y"));
-        input*=lookSens;
-        if (vertRot-input.y > highClamp) {
-            input.y = -(highClamp - vertRot);
-        }
-        else if (vertRot-input.y < lowClamp)
-        {
-            input.y = -(lowClamp - vertRot);
-        }
-        vertRot += -input.y;
+        input *= lookSens;
+        if (vertRot + input.y > highClamp) input.y = highClamp - vertRot;
+        else if (vertRot + input.y < lowClamp) input.y = lowClamp - vertRot;
         return input;
     }
 
@@ -48,6 +44,12 @@ public class LargePlayerCamera : MonoBehaviour
     {
         transform.Rotate(new Vector3(1, 0, 0), input.y);
         player.transform.Rotate(new Vector3(0, 1, 0), input.x);
+        vertRot = transform.eulerAngles.x;
+    }
+
+    private void ClampRotation()
+    {
+        if (vertRot > 180) vertRot -= 360;
     }
 
 }
