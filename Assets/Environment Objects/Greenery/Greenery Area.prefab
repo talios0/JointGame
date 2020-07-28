@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3702979954413812364}
   - component: {fileID: 746765918598669043}
   - component: {fileID: 5925007903076345306}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Greenery Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}

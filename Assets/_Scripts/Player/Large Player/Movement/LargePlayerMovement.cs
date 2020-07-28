@@ -165,7 +165,8 @@ public class LargePlayerMovement : MonoBehaviour
         rb.constraints = RigidbodyConstraints.FreezeRotation;
     }
 
-    private void SetGroundPhysics() {
+    private void SetGroundPhysics()
+    {
         rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionY;
     }
 
