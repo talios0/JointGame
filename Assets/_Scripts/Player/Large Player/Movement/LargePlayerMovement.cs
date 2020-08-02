@@ -29,7 +29,7 @@ public class LargePlayerMovement : MonoBehaviour
 
     // Other
     private bool frictionLock;
-    private Collider[] floor;
+    private Collider floor;
     private bool isFloor;
 
     private Vector3 input;
@@ -47,8 +47,8 @@ public class LargePlayerMovement : MonoBehaviour
     {
         Movement();
 
-        floor = GetFloor();
-        isFloor = floor.Length > 0 ? true : false;
+        floor = GetClosestFloor();
+        isFloor = floor != null ? true : false;
 
         if (gravState == GravityState.GROUND) GroundUpdate();
         else if (gravState == GravityState.AIRBORN) AirbornUpdate();
@@ -102,7 +102,7 @@ public class LargePlayerMovement : MonoBehaviour
     private bool isSlope()
     {
         if (!isFloor) return false;
-        float angle = floor[0].transform.rotation.eulerAngles.y;
+        float angle = floor.transform.rotation.eulerAngles.y;
 
 
         if (angle > maxSlopeAngle) return false;
@@ -117,7 +117,7 @@ public class LargePlayerMovement : MonoBehaviour
             return;
         }
         if (frictionLock) return;
-        pos = new Vector3(transform.position.x, GetFloor()[0].ClosestPoint(transform.position).y + playerGroundOffset, transform.position.z);
+        pos = new Vector3(transform.position.x, GetClosestFloor().ClosestPoint(transform.position).y + playerGroundOffset, transform.position.z);
         transform.position = pos;
     }
 
@@ -170,9 +170,19 @@ public class LargePlayerMovement : MonoBehaviour
         rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionY;
     }
 
-    private Collider[] GetFloor()
+    private Collider GetClosestFloor()
     {
-        return Physics.OverlapSphere(transform.position + playerGroundOffset * Vector3.down, groundRadius, 1 << LayerMask.NameToLayer("Ground"));
+        Collider[] col = Physics.OverlapSphere(transform.position + playerGroundOffset * Vector3.down, groundRadius, 1 << LayerMask.NameToLayer("Ground"));
+        Collider closest = null;
+        float distance = 0;
+        for (int i = 0; i < col.Length; i++) {
+            float newDistance = Vector3.Distance(col[i].bounds.ClosestPoint(transform.position), transform.position);
+            if (closest == null || newDistance < distance) {
+                closest = col[i];
+                distance = newDistance;
+            }
+        }
+        return closest;
     }
 
 }

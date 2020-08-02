@@ -17,6 +17,7 @@ public class LargePlayerCamera : MonoBehaviour
 
     private void Start()
     {
+        // Move to a guaranteed management script
         Cursor.lockState = CursorLockMode.Locked;
     }
 

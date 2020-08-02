@@ -1,134 +1,116 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class DroneMovement : MonoBehaviour
 {
-    [Header("Speed")]
-    public float incrementSpeed;
+    [Header("Component References")]
+    public Rigidbody rb;
+    public new DroneCamera camera;
+
+    [Header("Physics")]
+    public float gravity = 15;
+
+    [Header("Movement")]
+    public float accelerationModifier;
     public float maxSpeed;
+    public float incrementFriction;
 
-    [Header("Friction")]
-    public float frictionMultiplier;
+    [Header("Angular Movement")]
+    public float angularAcceleration;
+    public float maxAngularSpeed;
+    public float angularDragModifier;
 
-    [Header("Gravity")]
-    public float gravity;
-    private float groundDistance = 1;
-
-    [Header("Component Reference")]
-    private Rigidbody rb;
-
-    [Header("States")]
-    private GravityState gravState;
-    private DroneMovementState moveState;
-
-    [Header("Input Storage")]
+    // Input Storage
     private float xInput, yInput, zInput;
-
-    // Unity Start, Update, and Fixed Update functions
 
     private void Start()
     {
-        rb = GetComponent<Rigidbody>();
-        gravState = GravityState.GROUND;
-        moveState = DroneMovementState.IDLE;
+        
     }
 
     private void Update()
     {
-        MoveStateUpdater();
+        UpdateInput();
     }
 
     private void FixedUpdate()
     {
-        FixedMoveStateUpdater();
+        ApplyMovement();
+        ApplyGravity();
+        ApplyFriction();
+        ApplyAngularDrag();
+        ClampSpeed();
+        ClampAngularSpeed();
     }
 
-    // Input
+    private void LateUpdate()
+    {
+        if ((transform.eulerAngles.x >= 90 && transform.eulerAngles.x < 180) || (transform.eulerAngles.x < 270 && transform.eulerAngles.x > 180)) {
+            transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y, transform.eulerAngles.z);
+        }
+    }
+
     private void UpdateInput() {
         xInput = Input.GetAxisRaw("Vertical");
         zInput = Input.GetAxisRaw("Horizontal");
         yInput = Input.GetAxisRaw("Jump");
     }
 
-    // Apply Movement
     private void ApplyMovement() {
-        if (xInput == 0 && zInput == 0) return;
-        rb.AddForce((xInput * transform.forward + zInput * transform.right) * incrementSpeed, ForceMode.Acceleration);
+        rb.AddForce(xInput * camera.GetForward() * accelerationModifier, ForceMode.Acceleration);
+        rb.AddForceAtPosition(-zInput * camera.GetForward() * angularAcceleration, transform.right, ForceMode.Acceleration);
+        rb.AddForceAtPosition(zInput * camera.GetForward() * angularAcceleration, -transform.right, ForceMode.Acceleration);
     }
 
-    // Clamp Movement
-    private void ClampMovement() {
-        Vector3 vel = rb.velocity;
-        float yVel = vel.y;
-
-        vel.y = 0;
-        if (vel.magnitude < maxSpeed) return;
-        vel = Vector3.ClampMagnitude(vel, maxSpeed);
-        vel.y = yVel;
-
-        rb.velocity = vel;
+    private void ApplyGravity() {
+        rb.AddForce(Vector3.down *gravity, ForceMode.Acceleration);
     }
 
-    // Friction
-    private void AddFriction() {
-        Vector3 frictionDamp = -rb.velocity * frictionMultiplier;
+    // Friction and Drag
+    private void ApplyFriction() {
+        Vector3 frictionDamp = -rb.velocity * incrementFriction;
         frictionDamp.y = 0;
         if (Mathf.Abs(frictionDamp.x) < 0.05f && Mathf.Abs(frictionDamp.z) < 0.05f)
         {
             if (new Vector3(rb.velocity.x, 0, rb.velocity.z) != Vector3.zero) rb.velocity = new Vector3(0, 0, 0);
             return;
         }
-
         if (frictionDamp.magnitude > maxSpeed) frictionDamp = -rb.velocity;
+
         rb.AddForce(frictionDamp, ForceMode.VelocityChange);
     }
 
-    // Gravity
-    private void ApplyGravity() {
-        rb.AddForce(Vector3.down * gravity);
+    private void ApplyAngularDrag() {
+        Vector3 drag = -rb.angularVelocity * angularDragModifier;
+        drag.x = 0;
+        if (Mathf.Abs(drag.y) < 0.05f && Mathf.Abs(drag.z) < 0.05f) {
+            if (new Vector3(0, rb.angularVelocity.y, rb.angularVelocity.z) != Vector3.zero) rb.angularVelocity = new Vector3(0, 0, 0);
+            return;
+        }
+
+        if (drag.magnitude > maxAngularSpeed) drag = -rb.angularVelocity;
+
+        rb.AddTorque(drag, ForceMode.VelocityChange);
     }
 
-    // State Handlers
-    private void MoveStateUpdater() {
-        switch (moveState) {
-            case DroneMovementState.IDLE:
-                UpdateInput();
-                break;
-            case DroneMovementState.MOVING:
-                UpdateInput();
-                break;
-            case DroneMovementState.NOTCONTROLLED:
-                break;
-            default:
-                Debug.LogWarning("[DroneMovement.cs] DroneMovementState: <b>" + moveState + "</b> is not recognized");
-                break;
-        }
+
+    // Velocity Clamps
+    private void ClampSpeed() {
+        float yVel = rb.velocity.y;
+        Vector3 vel = rb.velocity;
+
+        vel.y = 0;
+        vel = Vector3.ClampMagnitude(vel, maxSpeed);
+        vel.y = yVel;
+
+        rb.velocity = vel;
     }
 
-    private void FixedMoveStateUpdater()
-    {
-        switch (moveState)
-        {
-            case DroneMovementState.IDLE:
-                ApplyMovement();
-                ClampMovement();
-                AddFriction();
-                ApplyGravity();
-                break;
-            case DroneMovementState.MOVING:
-                ApplyMovement();
-                ClampMovement();
-                AddFriction();
-                ApplyGravity();
-                break;
-            case DroneMovementState.NOTCONTROLLED:
-                AddFriction();
-                ApplyGravity();
-                break;
-            default:
-                Debug.LogWarning("[DroneMovement.cs] DroneMovementState: <b>" + moveState + "</b> is not recognized");
-                break;
-        }
+    private void ClampAngularSpeed() {
+        Vector3 vel = rb.angularVelocity;
+
+        vel = Vector3.ClampMagnitude(vel, maxAngularSpeed);
+        vel.x = 0;
+
+        rb.angularVelocity = vel;
     }
 }
