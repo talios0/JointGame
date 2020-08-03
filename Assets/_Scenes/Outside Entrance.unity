@@ -2687,6 +2687,7 @@ MonoBehaviour:
   lookSens: 5
   highClamp: 35
   lowClamp: -35
+  turningModifier: 0.05
 --- !u!81 &1781962954
 AudioListener:
   m_ObjectHideFlags: 0
@@ -3728,11 +3729,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2042062430184027835, guid: 185323f217f06364fa1d010778d4fcff,
+        type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
     - target: {fileID: 2042062430184027838, guid: 185323f217f06364fa1d010778d4fcff,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: cf44351f642231a4ca79fcae01b4a683, type: 2}
+    - target: {fileID: 2042062430883550904, guid: 185323f217f06364fa1d010778d4fcff,
+        type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
     - target: {fileID: 2042062430883550909, guid: 185323f217f06364fa1d010778d4fcff,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -3768,6 +3779,11 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: cf44351f642231a4ca79fcae01b4a683, type: 2}
+    - target: {fileID: 2042062431446915096, guid: 185323f217f06364fa1d010778d4fcff,
+        type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
     - target: {fileID: 2042062432320954864, guid: 185323f217f06364fa1d010778d4fcff,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -3833,11 +3849,31 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2042062432320954866, guid: 185323f217f06364fa1d010778d4fcff,
+        type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
     - target: {fileID: 2042062432320954871, guid: 185323f217f06364fa1d010778d4fcff,
         type: 3}
       propertyPath: camera
       value: 
       objectReference: {fileID: 1781962953}
+    - target: {fileID: 2042062432320954871, guid: 185323f217f06364fa1d010778d4fcff,
+        type: 3}
+      propertyPath: groundCheckRadius
+      value: 0.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 2042062432320954871, guid: 185323f217f06364fa1d010778d4fcff,
+        type: 3}
+      propertyPath: jumpAcceleration
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 2042062432320954871, guid: 185323f217f06364fa1d010778d4fcff,
+        type: 3}
+      propertyPath: forwardsAcceleration
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 185323f217f06364fa1d010778d4fcff, type: 3}
 --- !u!1001 &3213020445072700379

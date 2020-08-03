@@ -11,6 +11,8 @@ public class DroneCamera : MonoBehaviour
     [Header("Camera Properties")]
     public float lookSens;
     public float highClamp, lowClamp;
+    [Range(0,1)]
+    public float turningModifier = 0.05f;
 
     // Input Storage
     private float input;
@@ -39,7 +41,7 @@ public class DroneCamera : MonoBehaviour
     }
 
     private float UpdateInput() {
-        droneMovement.MouseRotationInput(Input.GetAxis("Mouse X") * lookSens*0.05f);
+        droneMovement.MouseRotationInput(Input.GetAxis("Mouse X") * lookSens*turningModifier);
         input = -Input.GetAxis("Mouse Y");
         input *= lookSens;
         if (vertRot + input > highClamp) input = highClamp - vertRot;

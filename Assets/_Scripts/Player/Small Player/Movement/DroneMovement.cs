@@ -19,9 +19,16 @@ public class DroneMovement : MonoBehaviour
     public float maxAngularSpeed;
     public float angularDragModifier;
 
+    [Header("Jump")]
+    public float jumpAcceleration;
+    public float forwardsAcceleration;
+    public float groundCheckRadius;
+
     // Input Storage
     private float xInput, yInput, zInput;
 
+
+    // Unity Start/Update methods
     private void Start()
     {
         
@@ -35,6 +42,7 @@ public class DroneMovement : MonoBehaviour
     private void FixedUpdate()
     {
         ApplyMovement();
+        Jump();
         ApplyGravity();
         ApplyFriction();
         ApplyAngularDrag();
@@ -49,6 +57,12 @@ public class DroneMovement : MonoBehaviour
         }
     }
 
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawSphere(transform.position + Vector3.down * 0.1f, groundCheckRadius);
+    }
+
+    // Input
     private void UpdateInput() {
         xInput = Input.GetAxisRaw("Vertical");
         zInput = Input.GetAxisRaw("Horizontal");
@@ -61,6 +75,7 @@ public class DroneMovement : MonoBehaviour
         else if (zInput < -1) zInput = -1;
     }
 
+    // Movement Application
     private void ApplyMovement() {
         rb.AddForce(xInput * camera.GetForward() * accelerationModifier, ForceMode.Acceleration);
         rb.AddForceAtPosition(-zInput * camera.GetForward() * angularAcceleration, transform.right, ForceMode.Acceleration);
@@ -71,13 +86,24 @@ public class DroneMovement : MonoBehaviour
         rb.AddForce(Vector3.down *gravity, ForceMode.Acceleration);
     }
 
+    // Jump + Checks
+    private void Jump() {
+        if (yInput == 0 || Mathf.Abs(rb.velocity.y) > 0.05f|| !CheckGround()) return;
+        rb.AddForce(camera.GetForward() * forwardsAcceleration + Vector3.up * jumpAcceleration, ForceMode.Impulse);
+    }
+
+    private bool CheckGround() {
+        int layerMask = ~(1 << LayerMask.NameToLayer("Drone"));
+        return Physics.CheckSphere(transform.position + Vector3.down * 0.1f, groundCheckRadius, layerMask);
+    }
+
     // Friction and Drag
     private void ApplyFriction() {
         Vector3 frictionDamp = -rb.velocity * incrementFriction;
         frictionDamp.y = 0;
         if (Mathf.Abs(frictionDamp.x) < 0.05f && Mathf.Abs(frictionDamp.z) < 0.05f)
         {
-            if (new Vector3(rb.velocity.x, 0, rb.velocity.z) != Vector3.zero) rb.velocity = new Vector3(0, 0, 0);
+            if (new Vector3(rb.velocity.x, 0, rb.velocity.z) != Vector3.zero) rb.velocity = new Vector3(0, rb.velocity.y, 0);
             return;
         }
         if (frictionDamp.magnitude > maxSpeed) frictionDamp = -rb.velocity;
