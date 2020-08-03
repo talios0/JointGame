@@ -4,18 +4,22 @@ using UnityEngine;
 
 public class DroneCamera : MonoBehaviour
 {
+    [Header("Components")]
     public Transform drone;
+    private DroneMovement droneMovement;
 
     [Header("Camera Properties")]
     public float lookSens;
     public float highClamp, lowClamp;
 
+    // Input Storage
     private float input;
     private float vertRot;
 
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
+        droneMovement = drone.GetComponent<DroneMovement>();
     }
 
     private void Update()
@@ -35,6 +39,7 @@ public class DroneCamera : MonoBehaviour
     }
 
     private float UpdateInput() {
+        droneMovement.MouseRotationInput(Input.GetAxis("Mouse X") * lookSens*0.05f);
         input = -Input.GetAxis("Mouse Y");
         input *= lookSens;
         if (vertRot + input > highClamp) input = highClamp - vertRot;

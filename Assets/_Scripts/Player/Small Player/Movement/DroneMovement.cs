@@ -44,7 +44,7 @@ public class DroneMovement : MonoBehaviour
 
     private void LateUpdate()
     {
-        if ((transform.eulerAngles.x >= 90 && transform.eulerAngles.x < 180) || (transform.eulerAngles.x < 270 && transform.eulerAngles.x > 180)) {
+        if ((transform.eulerAngles.x >= 90 && transform.eulerAngles.x < 180) || (transform.eulerAngles.x <= 270 && transform.eulerAngles.x > 180)) {
             transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y, transform.eulerAngles.z);
         }
     }
@@ -53,6 +53,12 @@ public class DroneMovement : MonoBehaviour
         xInput = Input.GetAxisRaw("Vertical");
         zInput = Input.GetAxisRaw("Horizontal");
         yInput = Input.GetAxisRaw("Jump");
+    }
+
+    public void MouseRotationInput(float amount) {
+        zInput += amount;
+        if (zInput > 1) zInput = 1;
+        else if (zInput < -1) zInput = -1;
     }
 
     private void ApplyMovement() {
