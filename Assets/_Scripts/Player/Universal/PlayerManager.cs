@@ -9,12 +9,13 @@ public class PlayerManager : MonoBehaviour
     [Header("Standard Components")]
     public Transform standard;
     public LargePlayerCamera standardCamera;
+    public Camera attachedStandardCamera;
     public LargePlayerMovement standardMovement;
-    public Vector3 standardCamPos;
 
     [Header("Drone Componenets")]
     public Transform drone;
     public DroneCamera droneCamera;
+    public Camera attachedDroneCamera;
     public DroneMovement droneMovement;
 
     private void Start()
@@ -57,10 +58,31 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
-    private void TransitionToStandard() {
+    public PlayerPlayState GetPlayState() {
+        return playState;
+    }
 
+    private void TransitionToStandard() {
+        // Disable
+        droneMovement.DisableMovement();
+        attachedDroneCamera.enabled = false;
+        droneCamera.enabled = false;
+
+        // Enable
+        standardMovement.EnableMovement();
+        attachedStandardCamera.enabled = true;
+        standardCamera.enabled = true;
     }
 
     private void TransitionToDrone() {
+        // Disable
+        standardMovement.DisableMovement();
+        attachedStandardCamera.enabled = false;
+        standardCamera.enabled = true;
+
+        // Enable
+        droneMovement.EnableMovement();
+        attachedDroneCamera.enabled = true;
+        droneCamera.enabled = true;
     }
 }

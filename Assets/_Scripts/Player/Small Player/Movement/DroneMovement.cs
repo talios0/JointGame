@@ -5,6 +5,7 @@ public class DroneMovement : MonoBehaviour
     [Header("Component References")]
     public Rigidbody rb;
     public new DroneCamera camera;
+    public PlayerManager manager;
 
     [Header("Physics")]
     public float gravity = 15;
@@ -27,6 +28,8 @@ public class DroneMovement : MonoBehaviour
     // Input Storage
     private float xInput, yInput, zInput;
 
+    private bool disabled = false;
+
 
     // Unity Start/Update methods
     private void Start()
@@ -36,13 +39,15 @@ public class DroneMovement : MonoBehaviour
 
     private void Update()
     {
-        UpdateInput();
+        if (!disabled) UpdateInput();
     }
 
     private void FixedUpdate()
     {
-        ApplyMovement();
-        Jump();
+        if (!disabled) {
+            ApplyMovement();
+            Jump();
+        }
         ApplyGravity();
         ApplyFriction();
         ApplyAngularDrag();
@@ -144,5 +149,17 @@ public class DroneMovement : MonoBehaviour
         vel.x = 0;
 
         rb.angularVelocity = vel;
+    }
+
+    public void DisableMovement() {
+        disabled = true;
+        xInput = 0;
+        yInput = 0;
+        zInput = 0;
+    }
+
+    public void EnableMovement()
+    {
+        disabled = false;
     }
 }

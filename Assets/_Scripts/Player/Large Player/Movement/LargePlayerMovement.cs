@@ -35,6 +35,8 @@ public class LargePlayerMovement : MonoBehaviour
     private Vector3 input;
     private Vector3 pos;
 
+    private bool disabled = false;
+
 
     // Sets the reference to the player's rigidbody
     void Start()
@@ -45,7 +47,7 @@ public class LargePlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        Movement();
+        if (!disabled) Movement();
 
         floor = GetClosestFloor();
         isFloor = floor != null ? true : false;
@@ -183,6 +185,16 @@ public class LargePlayerMovement : MonoBehaviour
             }
         }
         return closest;
+    }
+
+    public void DisableMovement()
+    {
+        disabled = true;
+        input = Vector3.zero;
+    }
+
+    public void EnableMovement() {
+        disabled = false;
     }
 
 }
