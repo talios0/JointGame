@@ -104,7 +104,7 @@ MonoBehaviour:
     max: 100
   tint:
     m_OverrideState: 1
-    m_Value: -22.4
+    m_Value: 26
     min: -100
     max: 100
 --- !u!114 &-3456188227920609444
@@ -125,8 +125,8 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value: {x: 0.6111754, y: 1, z: 0.64498687, w: 0.08444757}
   midtones:
-    m_OverrideState: 0
-    m_Value: {x: 1, y: 0.8283531, z: 0.6991347, w: 0.014074597}
+    m_OverrideState: 1
+    m_Value: {x: 0.7283542, y: 1, z: 0.7865295, w: 0.014074597}
   highlights:
     m_OverrideState: 1
     m_Value: {x: 1, y: 0.75245553, z: 0.5032328, w: 0.22519356}
@@ -156,7 +156,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d7fd9488000d3734a9e00ee676215985, type: 3}
-  m_Name: Box Volume Profile
+  m_Name: DroneProfile
   m_EditorClassIdentifier: 
   components:
   - {fileID: -5828427590445128467}
@@ -492,7 +492,7 @@ MonoBehaviour:
   hueVsHue:
     m_OverrideState: 0
     m_Value:
-      <length>k__BackingField: 1
+      <length>k__BackingField: 0
       m_Loop: 1
       m_ZeroValue: 0.5
       m_Range: 1
@@ -529,15 +529,24 @@ MonoBehaviour:
         m_PostInfinity: 2
         m_RotationOrder: 4
   lumVsSat:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value:
-      <length>k__BackingField: 0
+      <length>k__BackingField: 1
       m_Loop: 0
       m_ZeroValue: 0.5
       m_Range: 1
       m_Curve:
         serializedVersion: 2
-        m_Curve: []
+        m_Curve:
+        - serializedVersion: 3
+          time: 0.06451613
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4

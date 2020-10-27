@@ -18,6 +18,8 @@ public class DroneCamera : MonoBehaviour
     private float input;
     private float vertRot;
 
+    private bool disabled = false;
+
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -26,11 +28,13 @@ public class DroneCamera : MonoBehaviour
 
     private void Update()
     {
+        if (disabled) return;
         UpdateInput();
     }
 
     private void FixedUpdate()
     {
+        if (disabled) return;
         Look();
     }
 
@@ -41,6 +45,7 @@ public class DroneCamera : MonoBehaviour
     }
 
     private float UpdateInput() {
+        Debug.Log(Input.GetAxis("Mouse X"));
         droneMovement.MouseRotationInput(Input.GetAxis("Mouse X") * lookSens*turningModifier);
         input = -Input.GetAxis("Mouse Y");
         input *= lookSens;
@@ -65,5 +70,15 @@ public class DroneCamera : MonoBehaviour
     public Vector3 GetRight() {
         Quaternion rot = Quaternion.Euler(0, transform.eulerAngles.y, transform.eulerAngles.z);
         return rot * Vector3.right;
+    }
+
+    public void Disable()
+    {
+        disabled = true;
+    }
+
+    public void Enable()
+    {
+        disabled = false;
     }
 }
